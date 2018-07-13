@@ -1,5 +1,5 @@
 import sys
-from pyspark import SparkContext, SparkConf
+from pyspark import SparkContext
 from random import random
 def sample(p):
     x, y = random(), random()
