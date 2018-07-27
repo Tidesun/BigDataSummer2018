@@ -1,7 +1,7 @@
 from pyspark import SparkContext
-m=2
-n=3
-p=2
+m=0
+n=0
+p=0
 def mapper(lst):
     #lst=['A'(or 'B'),x,y,value]
     x=lst[1]

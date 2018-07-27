@@ -29,15 +29,15 @@ lr = LogisticRegression().setLabelCol("indexedLabel")\
 #convert predicted label by lableindexer
 labelConverter = IndexToString().setInputCol("prediction").setOutputCol("predictedLabel").setLabels(labelIndexer.labels)
 #lr pipeline set
-lrPipeline =  Pipeline().setStages([labelIndexer, featureIndexer, lr, labelConverter])
+pipeline =  Pipeline().setStages([labelIndexer, featureIndexer, lr, labelConverter])
 #model trained
-lrPipelineModel = lrPipeline.fit(trainingData)
-#predicted data
-lrPredictions = lrPipelineModel.transform(testData)
-
-preRel = lrPredictions.select("predictedLabel", "label", "features", "probability").collect()
-for item in preRel:
-    print str(item['label'])+','+str(item['features'])+'-->prob='+str(item['probability'])+',predictedLabel'+str(item['predictedLabel'])
-evaluator = MulticlassClassificationEvaluator().setLabelCol("indexedLabel").setPredictionCol("prediction")
-lrAccuracy = evaluator.evaluate(lrPredictions)
-print("Test Error = " + str(1.0 - lrAccuracy))
+paramGrid = ParamGridBuilder()\
+            .addGrid(lr.regParam, [0.1, 0.01])\
+            .addGrid(lr.elasticNetParam,[0.1,0.5,0.9])\
+            .build()
+crossval=CrossValidator(estimator=pipeline,\
+                          estimatorParamMaps=paramGrid,\
+                          evaluator=MulticlassClassificationEvaluator(),\
+                          numFolds=3)
+cvModel=crossval.fit(training)
+cvModel.bestModel.stages[2].summary
